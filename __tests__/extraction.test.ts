@@ -3106,6 +3106,7 @@ describe('Git Submodules', () => {
     git(libDir, 'init', '-q');
     git(libDir, 'config', 'user.email', 'test@test.com');
     git(libDir, 'config', 'user.name', 'Test');
+    git(libDir, 'config', 'commit.gpgsign', 'false');
     fs.writeFileSync(path.join(libDir, 'lib.ts'), 'export const fromSubmodule = 1;');
     git(libDir, 'add', '-A');
     git(libDir, 'commit', '-q', '-m', 'lib init');
@@ -3116,6 +3117,7 @@ describe('Git Submodules', () => {
     git(mainDir, 'init', '-q');
     git(mainDir, 'config', 'user.email', 'test@test.com');
     git(mainDir, 'config', 'user.name', 'Test');
+    git(mainDir, 'config', 'commit.gpgsign', 'false');
     fs.writeFileSync(path.join(mainDir, 'app.ts'), 'export const app = 1;');
     git(mainDir, 'add', '-A');
     git(mainDir, 'commit', '-q', '-m', 'app init');
@@ -3158,6 +3160,7 @@ describe('Nested non-submodule git repos', () => {
     git(root, 'init', '-q');
     git(root, 'config', 'user.email', 'test@test.com');
     git(root, 'config', 'user.name', 'Test');
+    git(root, 'config', 'commit.gpgsign', 'false');
     fs.writeFileSync(path.join(root, 'CMakeLists.txt'), 'cmake_minimum_required(VERSION 3.10)\n');
 
     // Two independent clones living inside the workspace (NOT submodules):
@@ -3167,6 +3170,7 @@ describe('Nested non-submodule git repos', () => {
     git(path.join(root, 'sub_repo1'), 'init', '-q');
     git(path.join(root, 'sub_repo1'), 'config', 'user.email', 'test@test.com');
     git(path.join(root, 'sub_repo1'), 'config', 'user.name', 'Test');
+    git(path.join(root, 'sub_repo1'), 'config', 'commit.gpgsign', 'false');
     fs.writeFileSync(path.join(sub1, 'one.ts'), 'export const one = 1;');
     git(path.join(root, 'sub_repo1'), 'add', '-A');
     git(path.join(root, 'sub_repo1'), 'commit', '-q', '-m', 'sub1 init');

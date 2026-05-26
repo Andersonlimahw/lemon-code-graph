@@ -530,6 +530,33 @@ the MCP server and writing its instructions file:
  </picture>
 </a>
 
+## About the Author
+
+<div align="center">
+
+### Anderson Lima
+
+**Senior Full Stack Engineer** · AI-native SaaS · Developer Tools · Launch Systems
+
+[![Website](https://img.shields.io/badge/🍋_lemon.dev.br-product_studio-yellow.svg)](https://lemon.dev.br/)
+[![X](https://img.shields.io/badge/@andersonlimadev-black.svg?logo=x)](https://x.com/andersonlimadev)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-andersonlimadev-blue.svg?logo=linkedin)](https://linkedin.com/in/andersonlimadev)
+[![GitHub](https://img.shields.io/badge/GitHub-andersonlimahw-gray.svg?logo=github)](https://github.com/andersonlimahw)
+
+</div>
+
+Building AI-native tools at the intersection of developer experience and language model capabilities. Based in São Paulo, Brasil.
+
+**Current projects:**
+- 🍋 **[Lemon.dev](https://lemon.dev.br/)** — Product studio for architecture & strategy
+- 🚀 **[IgnitionStack](https://ignitionstack.pro)** — SaaS boilerplate platform
+- 💰 **[VibingCash](https://vibingcash.com)** — AI finance OS for Brazilian founders
+- 🧠 **[Neutrix](https://neutrix.life)** — Focus & productivity app with AI assistant
+
+**Stack:** TypeScript · React · Next.js · Node.js · Supabase · PostgreSQL · AI/LLM
+
+---
+
 ## License
 
 MIT

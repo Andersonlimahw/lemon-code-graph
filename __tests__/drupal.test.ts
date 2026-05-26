@@ -537,6 +537,10 @@ beforeAll(async () => {
   await loadAllGrammars();
 });
 
+// The Drupal resolver is no longer registered in the active FRAMEWORK_RESOLVERS
+// (removed in the full-stack/mobile stack pivot). The unit tests above still
+// validate the resolver's extraction logic directly. The e2e test below is
+// skipped because CodeGraph.indexAll() won't apply the resolver.
 describe('Drupal end-to-end — route node linked to controller method', () => {
   let tmpDir: string | undefined;
   afterEach(() => {
@@ -544,7 +548,7 @@ describe('Drupal end-to-end — route node linked to controller method', () => {
     tmpDir = undefined;
   });
 
-  it('creates a route→controller edge from routing.yml to PHP class', async () => {
+  it.skip('creates a route→controller edge from routing.yml to PHP class (drupalResolver removed from active registry)', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cg-drupal-'));
 
     // Minimal composer.json to trigger Drupal detection

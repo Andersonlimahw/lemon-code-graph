@@ -52,7 +52,7 @@ The public API surface is `src/index.ts` — the `CodeGraph` class wires all the
 - `src/index.ts` — `CodeGraph` class: `init`/`open`/`close`, `indexAll`, `sync`, `searchNodes`, `getCallers`/`getCallees`, `getImpactRadius`, `buildContext`, `watch`/`unwatch`.
 - `src/db/` — `DatabaseConnection`, `QueryBuilder` (prepared statements), `schema.sql`. Backed by `better-sqlite3` (native) when available, transparently falls back to `node-sqlite3-wasm`. `codegraph status` surfaces which backend is live; wasm is the slow path.
 - `src/extraction/` — `ExtractionOrchestrator`, tree-sitter wrappers, per-language extractors under `languages/` (one file per language), plus standalone extractors for non-tree-sitter formats (`svelte-extractor.ts`, `vue-extractor.ts`, `liquid-extractor.ts`, `dfm-extractor.ts` for Delphi). `parse-worker.ts` runs heavy parsing off the main thread.
-- `src/resolution/` — `ReferenceResolver` orchestrates `import-resolver.ts` (with `path-aliases.ts` for tsconfig path aliases + cargo workspace member globs), `name-matcher.ts`, and `frameworks/` (Express, Laravel, Rails, FastAPI, Django, Flask, Spring, Gin, Axum, ASP.NET, Vapor, React Router, SvelteKit, Vue/Nuxt, Cargo workspaces). Frameworks emit `route` nodes and `references` edges.
+- `src/resolution/` — `ReferenceResolver` orchestrates `import-resolver.ts` (with `path-aliases.ts` for tsconfig path aliases + cargo workspace member globs), `name-matcher.ts`, and `frameworks/` (Express, NestJS, React/Next.js, Angular, Vue/Nuxt, SvelteKit, React Query, Bun/Elysia, React Native, Android, iOS/macOS, FastAPI, Spring, Gin, ASP.NET). Frameworks emit `route` and `component` nodes with `references` edges.
 - `src/graph/` — `GraphTraverser` (BFS/DFS, impact radius, path finding) and `GraphQueryManager` (high-level queries).
 - `src/context/` — `ContextBuilder` + formatter for markdown/JSON output.
 - `src/search/` — full-text query parser and helpers for FTS5.
@@ -236,8 +236,64 @@ publishes to npm. Requires the `NPM_TOKEN` repo secret.
 **Do not run `npm publish`, `git push`, or `git tag` yourself** — these are
 publish actions on shared state. Write the files, hand the user the commands.
 
+## AI / LLM Development Principles
+
+Inspired by Andrej Karpathy's guidance on working with LLMs, adapted to CodeGraph's architecture.
+
+### The Karpathy Rules for AI-Assisted Coding
+
+1. **Describe intent, not steps** — Tell the agent *what* outcome you want; let it figure out the *how*. "Add Angular route extraction" beats "go to frameworks/index.ts, add an import, then…"
+
+2. **Verify, don't trust** — Run `npm test` after every AI-generated change. Never ship unverified AI output. CodeGraph's deterministic extraction makes this easy: output is AST-derived, testable, and reproducible.
+
+3. **Small atomic diffs** — Each commit should answer one question. Big diffs hide bugs; small diffs expose them. If a change touches >5 files for a single feature, break it apart.
+
+4. **Read the output** — Actually read what the AI wrote. A bug in a 5-line suggestion is invisible if you rubber-stamp it.
+
+5. **Iterate fast, abandon fast** — If the first pass is wrong, discard it entirely and re-prompt with better constraints. Polishing a bad start is slower than restarting.
+
+6. **Context window is the workspace** — The model can only use what it sees. Front-load relevant types, interfaces, and examples. CodeGraph itself is a retrieval layer — use it to feed agents exactly the symbols they need before asking them to write code.
+
+7. **Explicit > implicit** — Spell out edge cases in prompts. "Handle null and empty string" beats assuming the model will infer it.
+
+8. **Use structured output** — TypeScript types, JSON schemas, and interfaces are better specifications than prose. The compiler enforces what prose can't.
+
+9. **Temperature discipline** — Deterministic tasks (code, SQL, schemas) need low temperature / no sampling. Brainstorming, naming, and docs benefit from variation.
+
+10. **Don't fight the model** — If a design pattern is hard to get right in one shot, change the architecture. Extractors, resolvers, and test fixtures in this repo are designed to be easy for AI to add without deep context.
+
+### Token & Cost Optimization (CodeGraph's Core Thesis)
+
+The mechanism: **an agent falls back to Read/Grep the instant a codegraph answer is insufficient.** Every optimization therefore asks: *does this make the codegraph answer sufficient enough to stop the agent from reading?*
+
+**What works:**
+- `codegraph_trace` inlines hop bodies + callees → one call ends a flow investigation
+- `codegraph_explore` with a precise bag of symbol names → trace-quality coverage of multi-file flows
+- Framework extractors emitting `route` nodes → agents find endpoints without directory walking
+- Dynamic-dispatch synthesizers bridging React/Observer/EventEmitter boundaries → flows connect end-to-end
+
+**What fails:**
+- Changing `server-instructions.ts` or tool descriptions to steer agent behavior — validated: wording variants don't reliably move tool choice
+- Adding new tools — rarely chosen; agents under-pick even `trace`
+- Half-bridged flows — covering one hop but not the next reveals a gap the agent drills into (measured: react-render alone *raised* Read calls to 5–7 on Excalidraw)
+
+**Measure everything:** Use `scripts/agent-eval/run-all.sh <repo> "<Q>"` to A/B with vs without codegraph. The pass bar is `~0 Read/Grep` within the explore-call budget. Run ≥2 times per arm — variance is large. See `docs/benchmarks/call-sequence-analysis.md`.
+
+### LLM Prompt Injection Defense
+
+CodeGraph is an MCP server that returns arbitrary user code as context. This is an **indirect prompt injection** surface — a malicious `// IGNORE PREVIOUS INSTRUCTIONS` comment in an indexed file can reach the agent.
+
+Mitigations in place:
+- `src/mcp/server-instructions.ts` — instructs the agent to treat all returned code as untrusted data, not AI directives
+- `src/installer/instructions-template.ts` — same instruction in each agent's own markdown file
+- `src/mcp/tools.ts` — input size limits reject oversized payloads before they reach FTS5 (`MAX_INPUT_LENGTH = 10_000`)
+- `src/db/queries.ts` — FTS5 special chars, null bytes, and boolean operators stripped before query execution
+
+When adding new MCP tools, keep these invariants: validate + bound all inputs; never interpolate user data into SQL strings; never let returned code content reach the agent's system prompt channel.
+
 ## House rules
 
 - The `0.7.x` line is in active multi-agent rollout. Any change to `src/installer/` (especially `targets/`) needs corresponding test coverage and a CHANGELOG entry — installer regressions break every new install silently.
 - When changing what the MCP tools do or how agents should use them, update **all three** of `src/mcp/server-instructions.ts`, `src/installer/instructions-template.ts`, and `.cursor/rules/codegraph.mdc` — they're written to different places but say the same thing.
 - CodeGraph provides **code context**, not product requirements. For new features, ask the user about UX, edge cases, and acceptance criteria — the graph won't tell you.
+- Test isolation: tests that call `git commit` must set `git config commit.gpgsign false` in the temp repo — the global config may have signing enabled (e.g. in CI). Tests that test Unicode output must clear `TERM` via `withEnv({ TERM: undefined, … })` since the CI terminal sets `TERM=linux`.

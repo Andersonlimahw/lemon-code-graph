@@ -400,20 +400,20 @@ from ..services import auth_service
       expect(frameworks.some((f) => f.name === 'express')).toBe(true);
     });
 
-    it('should detect Laravel framework', () => {
+    it('should detect Angular framework', () => {
       const context: ResolutionContext = {
         getNodesInFile: () => [],
         getNodesByName: () => [],
         getNodesByQualifiedName: () => [],
         getNodesByKind: () => [],
-        fileExists: (p) => p === 'artisan',
+        fileExists: (p) => p === 'angular.json',
         readFile: () => null,
         getProjectRoot: () => '/test',
-        getAllFiles: () => ['artisan', 'app/Http/Kernel.php'],
+        getAllFiles: () => ['angular.json', 'src/app/app.component.ts'],
       };
 
       const frameworks = detectFrameworks(context);
-      expect(frameworks.some((f) => f.name === 'laravel')).toBe(true);
+      expect(frameworks.some((f) => f.name === 'angular')).toBe(true);
     });
 
     it('should return all framework resolvers', () => {
@@ -421,7 +421,9 @@ from ..services import auth_service
       expect(resolvers.length).toBeGreaterThan(0);
       expect(resolvers.some((r) => r.name === 'react')).toBe(true);
       expect(resolvers.some((r) => r.name === 'express')).toBe(true);
-      expect(resolvers.some((r) => r.name === 'laravel')).toBe(true);
+      expect(resolvers.some((r) => r.name === 'angular')).toBe(true);
+      expect(resolvers.some((r) => r.name === 'react-native')).toBe(true);
+      expect(resolvers.some((r) => r.name === 'android')).toBe(true);
     });
   });
 

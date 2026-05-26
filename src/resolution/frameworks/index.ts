@@ -1,59 +1,100 @@
 /**
  * Framework Resolver Registry
  *
- * Manages framework-specific resolvers.
+ * Full-stack, frontend, and mobile framework resolvers for the
+ * modern development stack:
+ *
+ * JavaScript/TypeScript:
+ *   Express · NestJS · React · Next.js · Angular · Vue/Nuxt · Svelte/SvelteKit
+ *   React Query · React Native · Bun/Elysia
+ *
+ * Mobile / Native:
+ *   Android (Kotlin/Java · Jetpack Compose · Room · Hilt)
+ *   iOS / macOS (SwiftUI · UIKit · Combine · SwiftData)
+ *
+ * Other:
+ *   Go · Java/Spring · C# ASP.NET · FastAPI (Python) · Cargo workspaces
+ *
+ * Removed (not part of target stack):
+ *   Django, Flask, Laravel, Drupal (PHP), Axum/Actix/Rocket (Rust), Vapor (Swift)
+ *   Rails (Ruby)
  */
 
 import { FrameworkResolver, ResolutionContext } from '../types';
 import type { Language } from '../../types';
-import { drupalResolver } from './drupal';
-import { laravelResolver } from './laravel';
+
+// JavaScript / TypeScript web
 import { expressResolver } from './express';
 import { nestjsResolver } from './nestjs';
 import { reactResolver } from './react';
 import { svelteResolver } from './svelte';
 import { vueResolver } from './vue';
-import { djangoResolver, flaskResolver, fastapiResolver } from './python';
-import { railsResolver } from './ruby';
+
+// Frontend frameworks (new)
+import { angularResolver } from './angular';
+import { reactQueryResolver } from './react-query';
+
+// Mobile (new)
+import { reactNativeResolver } from './react-native';
+import { androidResolver } from './android';
+import { iosResolver } from './ios';
+
+// Runtime (new)
+import { bunResolver } from './bun';
+
+// Python (FastAPI only — Django/Flask removed)
+import { fastapiResolver } from './python';
+
+// JVM
 import { springResolver } from './java';
 import { playResolver } from './play';
+
+// Go
 import { goResolver } from './go';
-import { rustResolver } from './rust';
+
+// C#
 import { aspnetResolver } from './csharp';
-import { swiftUIResolver, uikitResolver, vaporResolver } from './swift';
+
+// Swift — SwiftUI/UIKit only (Vapor removed)
+import { swiftUIResolver, uikitResolver } from './swift';
 
 /**
- * All registered framework resolvers
+ * All registered framework resolvers.
+ *
+ * Ordered by detection priority — more specific frameworks before generic ones.
  */
 const FRAMEWORK_RESOLVERS: FrameworkResolver[] = [
-  // PHP
-  laravelResolver,
-  drupalResolver,
-  // JavaScript/TypeScript
-  expressResolver,
+  // Mobile / Native (check first — narrower detection)
+  androidResolver,
+  iosResolver,
+  reactNativeResolver,
+
+  // JavaScript/TypeScript — full-stack & frontend
+  bunResolver,
   nestjsResolver,
+  expressResolver,
+  reactQueryResolver,
   reactResolver,
+  angularResolver,
   svelteResolver,
   vueResolver,
-  // Python
-  djangoResolver,
-  flaskResolver,
+
+  // Python (FastAPI only)
   fastapiResolver,
-  // Ruby
-  railsResolver,
-  // Java
+
+  // JVM
   springResolver,
   playResolver,
+
   // Go
   goResolver,
-  // Rust
-  rustResolver,
+
   // C#
   aspnetResolver,
-  // Swift
+
+  // Swift — SwiftUI & UIKit (Vapor removed)
   swiftUIResolver,
   uikitResolver,
-  vaporResolver,
 ];
 
 /**
@@ -108,19 +149,30 @@ export function registerFrameworkResolver(resolver: FrameworkResolver): void {
   FRAMEWORK_RESOLVERS.push(resolver);
 }
 
-// Re-export framework resolvers
-export { drupalResolver } from './drupal';
-export { laravelResolver, FACADE_MAPPINGS } from './laravel';
+// Re-export active framework resolvers
 export { expressResolver } from './express';
 export { nestjsResolver } from './nestjs';
 export { reactResolver } from './react';
 export { svelteResolver } from './svelte';
 export { vueResolver } from './vue';
-export { djangoResolver, flaskResolver, fastapiResolver } from './python';
-export { railsResolver } from './ruby';
+export { angularResolver } from './angular';
+export { reactQueryResolver } from './react-query';
+export { reactNativeResolver } from './react-native';
+export { androidResolver } from './android';
+export { iosResolver } from './ios';
+export { bunResolver } from './bun';
+export { fastapiResolver } from './python';
 export { springResolver } from './java';
 export { playResolver } from './play';
 export { goResolver } from './go';
-export { rustResolver } from './rust';
 export { aspnetResolver } from './csharp';
-export { swiftUIResolver, uikitResolver, vaporResolver } from './swift';
+export { swiftUIResolver, uikitResolver } from './swift';
+
+// Legacy exports for backwards compatibility (resolvers still exist in files
+// but are no longer registered — kept so existing imports don't hard-error)
+export { djangoResolver, flaskResolver } from './python';
+export { railsResolver } from './ruby';
+export { rustResolver } from './rust';
+export { laravelResolver, FACADE_MAPPINGS } from './laravel';
+export { drupalResolver } from './drupal';
+export { vaporResolver } from './swift';

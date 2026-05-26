@@ -10,96 +10,122 @@ beforeAll(async () => {
   await loadAllGrammars();
 });
 
-describe('Django end-to-end framework extraction', () => {
+describe('Angular end-to-end framework extraction', () => {
   let tmpDir: string | undefined;
   afterEach(() => {
     if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true });
     tmpDir = undefined;
   });
 
-  it('creates a route->view edge from urls.py to view class', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cg-django-'));
-    fs.writeFileSync(path.join(tmpDir, 'manage.py'), '# marker\n');
-    fs.writeFileSync(path.join(tmpDir, 'requirements.txt'), 'django==4.2\n');
-    fs.mkdirSync(path.join(tmpDir, 'users'));
-    fs.writeFileSync(path.join(tmpDir, 'users/__init__.py'), '');
+  it('creates route nodes from Angular RouterModule configuration', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cg-angular-'));
     fs.writeFileSync(
-      path.join(tmpDir, 'users/views.py'),
-      'class UserListView:\n    def get(self, request): pass\n'
+      path.join(tmpDir, 'angular.json'),
+      JSON.stringify({ version: 1, projects: { app: {} } }, null, 2)
     );
     fs.writeFileSync(
-      path.join(tmpDir, 'users/urls.py'),
-      'from django.urls import path\n' +
-        'from users.views import UserListView\n' +
-        'urlpatterns = [path("users/", UserListView.as_view(), name="user-list")]\n'
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({ dependencies: { '@angular/core': '^17.0.0', '@angular/router': '^17.0.0' } })
+    );
+    fs.mkdirSync(path.join(tmpDir, 'src', 'app'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, 'src', 'app', 'home.component.ts'),
+      'import { Component } from "@angular/core";\n' +
+        '@Component({ selector: "app-home", template: "<h1>Home</h1>" })\n' +
+        'export class HomeComponent {}\n'
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, 'src', 'app', 'app-routing.module.ts'),
+      'import { NgModule } from "@angular/core";\n' +
+        'import { RouterModule, Routes } from "@angular/router";\n' +
+        'import { HomeComponent } from "./home.component";\n' +
+        'const routes: Routes = [\n' +
+        '  { path: "", component: HomeComponent },\n' +
+        '  { path: "dashboard", component: HomeComponent },\n' +
+        '];\n' +
+        '@NgModule({ imports: [RouterModule.forRoot(routes)], exports: [RouterModule] })\n' +
+        'export class AppRoutingModule {}\n'
     );
 
     const cg = CodeGraph.initSync(tmpDir);
     await cg.indexAll();
 
-    // Route node exists
+    // Route nodes are extracted from the Routes array
     const routes = cg.getNodesByKind('route');
     expect(routes.length).toBeGreaterThan(0);
-    const route = routes.find((n) => n.name === 'users/');
-    expect(route).toBeDefined();
+    const dashboardRoute = routes.find((n) => n.name === 'dashboard');
+    expect(dashboardRoute).toBeDefined();
 
-    // View class exists
-    const classNodes = cg.getNodesByKind('class');
-    const view = classNodes.find((n) => n.name === 'UserListView');
-    expect(view).toBeDefined();
-
-    // Edge route -> view exists
-    const edges = cg.getOutgoingEdges(route!.id);
-    const toView = edges.find((e) => e.target === view!.id);
-    expect(toView).toBeDefined();
-    expect(toView!.kind).toBe('references');
+    // Component node is indexed
+    const components = cg.getNodesByKind('component');
+    const homeComp = components.find((n) => n.name === 'HomeComponent');
+    expect(homeComp).toBeDefined();
 
     cg.close();
   });
 });
 
-describe('Flask end-to-end framework extraction', () => {
+describe('React Native end-to-end framework extraction', () => {
   let tmpDir: string | undefined;
   afterEach(() => {
     if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true });
     tmpDir = undefined;
   });
 
-  it('resolves stacked routes across @login_required to a view named after a builtin (index)', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cg-flask-'));
-    fs.writeFileSync(path.join(tmpDir, 'requirements.txt'), 'flask==3.0\n');
+  it('creates route nodes from React Navigation screen configuration', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cg-rn-'));
     fs.writeFileSync(
-      path.join(tmpDir, 'app.py'),
-      'from flask import Blueprint, render_template\n' +
-        'from flask_login import login_required\n' +
-        'bp = Blueprint("main", __name__)\n' +
-        '\n' +
-        '@bp.route("/", methods=["GET", "POST"])\n' +
-        '@bp.route("/index", methods=["GET", "POST"])\n' +
-        '@login_required\n' +
-        'def index():\n' +
-        '    return render_template("index.html")\n'
+      path.join(tmpDir, 'package.json'),
+      JSON.stringify({
+        dependencies: {
+          'react-native': '0.74.0',
+          '@react-navigation/native': '^6.0.0',
+          '@react-navigation/stack': '^6.0.0',
+        },
+      })
+    );
+    fs.mkdirSync(path.join(tmpDir, 'src', 'screens'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmpDir, 'src', 'screens', 'HomeScreen.tsx'),
+      'import React from "react";\n' +
+        'import { View, Text } from "react-native";\n' +
+        'export default function HomeScreen() {\n' +
+        '  return <View><Text>Home</Text></View>;\n' +
+        '}\n'
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, 'src', 'App.tsx'),
+      'import React from "react";\n' +
+        'import { NavigationContainer } from "@react-navigation/native";\n' +
+        'import { createStackNavigator } from "@react-navigation/stack";\n' +
+        'import HomeScreen from "./screens/HomeScreen";\n' +
+        'const Stack = createStackNavigator();\n' +
+        'export default function App() {\n' +
+        '  return (\n' +
+        '    <NavigationContainer>\n' +
+        '      <Stack.Navigator>\n' +
+        '        <Stack.Screen name="Home" component={HomeScreen} />\n' +
+        '        <Stack.Screen name="Profile" component={HomeScreen} />\n' +
+        '      </Stack.Navigator>\n' +
+        '    </NavigationContainer>\n' +
+        '  );\n' +
+        '}\n'
     );
 
     const cg = CodeGraph.initSync(tmpDir);
     await cg.indexAll();
 
-    // Both stacked @bp.route decorators are extracted (the second was previously
-    // dropped because @login_required broke the "def must follow" assumption).
+    // Navigation screen route nodes extracted
     const routes = cg.getNodesByKind('route');
-    expect(routes.map((r) => r.name).sort()).toEqual(['GET /', 'GET /index']);
+    expect(routes.length).toBeGreaterThan(0);
+    const homeRoute = routes.find((n) => n.name === 'Home');
+    expect(homeRoute).toBeDefined();
+    const profileRoute = routes.find((n) => n.name === 'Profile');
+    expect(profileRoute).toBeDefined();
 
-    // The view function exists even though its name is a Python builtin method.
-    const fn = cg.getNodesByKind('function').find((n) => n.name === 'index');
-    expect(fn).toBeDefined();
-
-    // Both routes resolve to it — exercises the bare-name builtin guard, which
-    // previously filtered the `index` reference as a builtin method.
-    for (const route of routes) {
-      const edges = cg.getOutgoingEdges(route.id);
-      const toView = edges.find((e) => e.target === fn!.id && e.kind === 'references');
-      expect(toView, `route ${route.name} should resolve to index()`).toBeDefined();
-    }
+    // HomeScreen component referenced from route
+    const edges = cg.getOutgoingEdges(homeRoute!.id);
+    expect(edges.some((e) => e.kind === 'references')).toBe(true);
 
     cg.close();
   });

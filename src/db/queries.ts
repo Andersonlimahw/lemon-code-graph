@@ -758,8 +758,10 @@ export class QueryBuilder {
     // like `stage_apply::run` collapse to `stage_applyrun` (the colons
     // are stripped without splitting) and find nothing. See #173.
     const ftsQuery = query
-      .replace(/::/g, ' ') // Rust/C++/Ruby qualifier separator
-      .replace(/['"*():^]/g, '') // Remove FTS5 special chars
+      .replace(/\x00/g, '')        // Strip null bytes (FTS5 confusion)
+      .replace(/\x1E/g, '')        // Strip FTS5 column separator
+      .replace(/::/g, ' ')         // Rust/C++/Ruby qualifier separator
+      .replace(/['"*():^\-]/g, '') // Remove FTS5 special chars + hyphen (negation)
       .split(/\s+/)
       .filter(term => term.length > 0)
       // Strip FTS5 boolean operators to prevent query manipulation

@@ -2,10 +2,10 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
-// Project page on GitHub Pages: https://colbymchenry.github.io/codegraph/
+// Project page on GitHub Pages: https://andersonlimahw.github.io/codegraph/
 // `site` + `base` make every internal link resolve under the /codegraph/ prefix.
 export default defineConfig({
-	site: 'https://colbymchenry.github.io',
+	site: 'https://andersonlimahw.github.io',
 	base: '/codegraph',
 	integrations: [
 		starlight({
@@ -26,7 +26,7 @@ export default defineConfig({
 				{
 					icon: 'github',
 					label: 'GitHub',
-					href: 'https://github.com/colbymchenry/codegraph',
+					href: 'https://github.com/andersonlimahw/codegraph',
 				},
 			],
 			customCss: [

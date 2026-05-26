@@ -18,8 +18,8 @@ irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 
 ## Already have Node? Use npm instead (works on any version)
 
 ```bash
-npx @andersonlimahw/codegraph        # zero-install, or:
-npm i -g @andersonlimahw/codegraph
+npx @andersonlimahw/lemon-codegraph        # zero-install, or:
+npm i -g @andersonlimahw/lemon-codegraph
 ```
 
 CodeGraph bundles its own runtime — nothing to compile, no native build, works the same everywhere. The interactive installer auto-configures your agent(s) — Claude Code, Cursor, Codex CLI, opencode, Hermes Agent.

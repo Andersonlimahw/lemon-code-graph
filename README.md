@@ -8,7 +8,7 @@
 
 ### [Documentation & Website →](https://andersonlimahw.github.io/codegraph/)
 
-[![npm version](https://img.shields.io/npm/v/@andersonlimahw/codegraph.svg)](https://www.npmjs.com/package/@andersonlimahw/codegraph)
+[![npm version](https://img.shields.io/npm/v/@andersonlimahw/lemon-codegraph.svg)](https://www.npmjs.com/package/@andersonlimahw/lemon-codegraph)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Self-contained](https://img.shields.io/badge/Node.js-bundled%20%C2%B7%20none%20required-brightgreen.svg)](https://nodejs.org/)
 
@@ -23,6 +23,8 @@
 [![Hermes Agent](https://img.shields.io/badge/Hermes_Agent-supported-blueviolet.svg)](#supported-agents)
 
 </div>
+
+> **Fork** of [colbymchenry/codegraph](https://github.com/colbymchenry/codegraph) — expanded with full-stack, frontend and mobile stack support (Angular, React Native, Android, iOS, Bun/Elysia, React Query) and security hardening. See [CHANGELOG](./CHANGELOG.md) for differences.
 
 ## Get Started
 
@@ -39,8 +41,8 @@ irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 
 Already have Node? Use npm instead (works on any version):
 
 ```bash
-npx @andersonlimahw/codegraph        # zero-install, or:
-npm i -g @andersonlimahw/codegraph
+npx @andersonlimahw/lemon-codegraph        # zero-install, or:
+npm i -g @andersonlimahw/lemon-codegraph
 ```
 
 <sub>CodeGraph bundles its own runtime — nothing to compile, no native build, works the same everywhere. The interactive installer auto-configures your agent(s) — Claude Code, Cursor, Codex CLI, opencode, Hermes Agent.</sub>
@@ -183,7 +185,7 @@ CodeGraph detects framework routing files and patterns, emitting `route` and `co
 ### 1. Run the Installer
 
 ```bash
-npx @andersonlimahw/codegraph
+npx @andersonlimahw/lemon-codegraph
 ```
 
 The installer will:
@@ -231,7 +233,7 @@ That's it — your agent will use CodeGraph tools automatically when a `.codegra
 
 **Install globally:**
 ```bash
-npm install -g @andersonlimahw/codegraph
+npm install -g @andersonlimahw/lemon-codegraph
 ```
 
 **Add to `~/.claude.json`:**
@@ -412,7 +414,7 @@ When running as an MCP server, CodeGraph exposes these tools to Claude Code:
 ## Library Usage
 
 ```typescript
-import CodeGraph from '@andersonlimahw/codegraph';
+import CodeGraph from '@andersonlimahw/lemon-codegraph';
 
 const cg = await CodeGraph.init('/path/to/project');
 // Or: const cg = await CodeGraph.open('/path/to/project');
@@ -513,7 +515,7 @@ the MCP server and writing its instructions file:
 
 **MCP hits `database is locked`** — current builds shouldn't: CodeGraph bundles its own Node runtime and uses Node's built-in `node:sqlite` in WAL mode, where concurrent reads never block on a writer. If you still see it:
 
-- **You're on an old (pre-0.9) install.** Reinstall to get the bundled runtime — `curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh` (macOS/Linux), `irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 | iex` (Windows), or `npm i -g @andersonlimahw/codegraph@latest`.
+- **You're on an old (pre-0.9) install.** Reinstall to get the bundled runtime — `curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh` (macOS/Linux), `irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 | iex` (Windows), or `npm i -g @andersonlimahw/lemon-codegraph@latest`.
 - **`codegraph status` shows `Journal:` other than `wal`** — WAL couldn't be enabled on this filesystem (common on network shares and WSL2 `/mnt`), so reads can block on writes. Move the project (with its `.codegraph/` folder) onto a local disk.
 
 **MCP server not connecting** — Ensure the project is initialized/indexed, verify the path in your MCP config, and check that `codegraph serve --mcp` works from the command line.

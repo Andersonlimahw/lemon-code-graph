@@ -6,7 +6,7 @@ description: Use CodeGraph as a TypeScript library.
 CodeGraph ships a TypeScript API. The public surface is the `CodeGraph` class.
 
 ```typescript
-import CodeGraph from '@andersonlimahw/codegraph';
+import CodeGraph from '@andersonlimahw/lemon-codegraph';
 
 const cg = await CodeGraph.init('/path/to/project');
 // Or open an existing index:

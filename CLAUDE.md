@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CodeGraph is a local-first code intelligence library + CLI + MCP server. It parses any supported codebase with tree-sitter, stores symbols/edges/files in SQLite (FTS5), and exposes a knowledge graph to AI agents (Claude Code, Cursor, Codex CLI, opencode) over MCP. Per-project data lives in `.codegraph/`. Extraction is deterministic — derived from AST, not LLM-summarized.
+CodeGraph (lemon-codegraph) is a fork of [colbymchenry/codegraph](https://github.com/colbymchenry/codegraph), extended for the full-stack/frontend/mobile stack. It is a local-first code intelligence library + CLI + MCP server. It parses any supported codebase with tree-sitter, stores symbols/edges/files in SQLite (FTS5), and exposes a knowledge graph to AI agents (Claude Code, Cursor, Codex CLI, opencode) over MCP. Per-project data lives in `.codegraph/`. Extraction is deterministic — derived from AST, not LLM-summarized.
 
-Distributed as `@andersonlimahw/codegraph` on npm; same binary serves as installer, indexer, and MCP server.
+Distributed as `@andersonlimahw/lemon-codegraph` on npm; same binary serves as installer, indexer, and MCP server.
 
 ## Build, Test, Run
 
@@ -71,7 +71,7 @@ Defined in `src/types.ts`. Both extractors and resolvers must use these exact st
 
 ### Multi-agent installer
 
-`src/installer/` is the entry point for `codegraph install` (and the bare `codegraph`/`npx @andersonlimahw/codegraph` invocation). Architecture:
+`src/installer/` is the entry point for `codegraph install` (and the bare `codegraph`/`npx @andersonlimahw/lemon-codegraph` invocation). Architecture:
 
 - `targets/registry.ts` lists every supported agent.
 - `targets/types.ts` defines the `AgentTarget` interface — adding a 5th agent (Continue, Zed, Windsurf…) is **one new file in `targets/` + one entry in `registry.ts`**. Each target owns its config-file location, MCP-server JSON/TOML/JSONC writing, and instructions-file path.

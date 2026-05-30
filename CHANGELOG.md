@@ -1,13 +1,60 @@
 # Changelog
 
 All notable changes to CodeGraph are documented here. Each entry also ships as
-a [GitHub Release](https://github.com/colbymchenry/codegraph/releases) tagged
+a [GitHub Release](https://github.com/andersonlimahw/codegraph/releases) tagged
 `vX.Y.Z`, which is where most people will look.
 
 This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+<!-- Next release goes here -->
+
+## [0.9.5] — Full-Stack, Frontend & Mobile Stack
+
+### Added
+
+- **Angular framework resolver** — detects `angular.json` / `@angular/core` and extracts:
+  `Routes` config (route nodes with component references), `@Component({ selector })` nodes,
+  services, guards, pipes, modules, and standalone component API (Angular v14+).
+- **React Query / TanStack Query resolver** — detects `@tanstack/react-query` or legacy `react-query`
+  and indexes custom hooks wrapping `useQuery` / `useMutation` / `useInfiniteQuery`,
+  query-key factory objects, and links `queryFn` references to their fetcher functions.
+- **Bun / Elysia resolver** — detects `bun.lockb`, `bunfig.toml`, or `elysia` in `package.json`
+  and extracts `Bun.serve()` entry points and Elysia route handlers (`.get`, `.post`, …).
+- **React Native resolver** — detects `react-native` / `expo` / `@react-navigation/*` and extracts:
+  React Navigation screen routes (`Stack.Screen`, `Tab.Screen`, `Drawer.Screen`),
+  Expo Router file-based routes (`app/_layout.tsx`, `app/[param].tsx`), and navigation component references.
+- **Android resolver** — detects `AndroidManifest.xml` / `build.gradle` and extracts:
+  `@Composable` function components, Jetpack Compose `NavHost composable("route")` routes,
+  Retrofit `@GET/@POST/…` API endpoints, and links ViewModel / Repository / DAO / UseCase patterns.
+- **iOS / macOS native resolver** — detects Xcode projects and Package.swift (non-Vapor) and extracts:
+  `NavigationStack` / `NavigationLink` destinations, `@Model` (SwiftData) entities,
+  ViewController / View / ViewModel / Coordinator / Service references across UIKit and SwiftUI.
+- **MCP input size enforcement** — oversized `query`, `task`, and `symbol` inputs (> 10 000 chars)
+  now return a clear error response instead of being silently truncated, providing better
+  feedback to misbehaving or adversarial MCP clients.
+
+### Changed
+
+- **Framework stack reoriented to full-stack, frontend, and mobile market.** Removed from the
+  active resolver registry (files preserved for backwards compatibility): Django, Flask, Laravel,
+  Drupal, Rails, Axum/Actix/Rocket (Rust web frameworks), and Vapor (server-side Swift).
+  Retained: Express, NestJS, React/Next.js, Vue/Nuxt, SvelteKit, FastAPI, Spring, Gin, ASP.NET,
+  SwiftUI, UIKit, and all new mobile/frontend resolvers above.
+- **Security hardening — prompt injection from indexed code.** The MCP `initialize` server
+  instructions and each agent's instructions file now include an explicit note instructing the
+  agent not to interpret code content returned by CodeGraph tools as AI directives. This closes
+  the indirect-prompt-injection vector where a malicious comment in an indexed file could
+  attempt to redirect agent behavior.
+
+### Fixed
+
+- **FTS5 query sanitization** — added null-byte (`\x00`) and FTS5 column-separator (`\x1E`)
+  stripping on top of the existing special-character removal to prevent edge-case FTS5 confusion.
+
+[0.9.5]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.5
 
 ### Added
 - **Shared MCP daemon — running multiple AI agents in the same project no
@@ -156,10 +203,10 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   polls `process.ppid` and shuts down the moment it changes from the value
   observed at startup; the poll interval is `CODEGRAPH_PPID_POLL_MS` (default
   `5000`, `0` disables). Resolves
-  [#277](https://github.com/colbymchenry/codegraph/issues/277).
+  [#277](https://github.com/andersonlimahw/codegraph/issues/277).
 
 - **`codegraph: no prebuilt bundle for <platform>` after installing through a
-  registry mirror.** Installing `@colbymchenry/codegraph` from a registry that
+  registry mirror.** Installing `@andersonlimahw/lemon-codegraph` from a registry that
   hadn't mirrored the matching per-platform package — most often the
   npmmirror/cnpm mirrors, but any lazily-syncing mirror or corporate proxy can
   do it — left every command failing with `no prebuilt bundle for <platform>`.
@@ -172,7 +219,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Set `CODEGRAPH_NO_DOWNLOAD=1` to disable the network fallback, or
   `CODEGRAPH_DOWNLOAD_BASE=<url>` to point it at your own mirror of the release
   archives; the standalone `install.sh` remains the no-Node alternative. Resolves
-  [#303](https://github.com/colbymchenry/codegraph/issues/303).
+  [#303](https://github.com/andersonlimahw/codegraph/issues/303).
 - **`install.sh` failing with `403` / "could not resolve latest version" on
   shared or cloud hosts.** The standalone installer resolved the latest release
   through the GitHub API, whose unauthenticated limit is 60 requests/hour per IP
@@ -181,7 +228,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `releases/latest` web redirect, which isn't rate-limited (and still falls back
   to the API). `CODEGRAPH_VERSION` also accepts a bare `0.9.4` in addition to
   `v0.9.4`. Resolves
-  [#325](https://github.com/colbymchenry/codegraph/issues/325).
+  [#325](https://github.com/andersonlimahw/codegraph/issues/325).
 
 ## [0.9.3] - 2026-05-22
 
@@ -195,7 +242,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   non-interactive use. It removes only what `install` wrote (MCP server entry,
   instructions block, permissions) and leaves your `.codegraph/` index alone
   (use `codegraph uninit` for that). Resolves
-  [#313](https://github.com/colbymchenry/codegraph/issues/313) — previously the
+  [#313](https://github.com/andersonlimahw/codegraph/issues/313) — previously the
   only cleanup path was an npm `preuninstall` hook that the published bundle
   never shipped, so `npm uninstall -g` left every agent pointing at a CodeGraph
   MCP server that no longer existed.
@@ -214,8 +261,8 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the crash; indexing output is otherwise unchanged. The bundled launcher passes
   the flag directly, and any other launch path (from source, `npx`, a globally
   linked dev build) re-execs once with it automatically. Resolves
-  [#298](https://github.com/colbymchenry/codegraph/issues/298) and
-  [#293](https://github.com/colbymchenry/codegraph/issues/293). (Node 25 stays
+  [#298](https://github.com/andersonlimahw/codegraph/issues/298) and
+  [#293](https://github.com/andersonlimahw/codegraph/issues/293). (Node 25 stays
   blocked — its variant of this V8 bug is not resolved by `--liftoff-only`.)
 - **Cursor uninstall left an orphaned `.cursor/rules/codegraph.mdc`.** It
   stripped the rule body but left the file and its `description: CodeGraph …`
@@ -246,7 +293,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   New `yaml`/`twig` languages are tracked at the file level, the Drupal PHP
   extensions (`.module`/`.install`/`.theme`/`.inc`) are indexed with the PHP
   grammar, and `web/core`, `web/modules/contrib`, `web/themes/contrib` are
-  excluded by default. Resolves [#268](https://github.com/colbymchenry/codegraph/issues/268).
+  excluded by default. Resolves [#268](https://github.com/andersonlimahw/codegraph/issues/268).
 
 ### Changed
 - **Zero-config indexing that respects `.gitignore`.** CodeGraph no longer has a
@@ -259,16 +306,16 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   committed files that are *not* gitignored are now indexed even under `vendor/`,
   `Pods/`, or a committed `dist/` — previously a hardcoded exclude list skipped
   those names; now `.gitignore` is the single source of truth. Resolves
-  [#283](https://github.com/colbymchenry/codegraph/issues/283).
+  [#283](https://github.com/andersonlimahw/codegraph/issues/283).
 
 ### Fixed
-- **Windows: `npm i -g @colbymchenry/codegraph` then any `codegraph` command
+- **Windows: `npm i -g @andersonlimahw/lemon-codegraph` then any `codegraph` command
   failed with `spawnSync …\codegraph.cmd EINVAL`.** The npm launcher spawned the
   bundle's `.cmd` file directly, which modern Node refuses to do on Windows
   (the CVE-2024-27980 hardening — seen on Node 24). The launcher now invokes the
   bundled `node.exe` against the app directly, so `codegraph` works on Windows
   regardless of your Node version. Resolves
-  [#289](https://github.com/colbymchenry/codegraph/issues/289).
+  [#289](https://github.com/andersonlimahw/codegraph/issues/289).
 
 ### Removed
 - **`.codegraph/config.json` and the entire config surface.** Every field was
@@ -295,7 +342,7 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   system another local user could pre-plant that path as a symlink and redirect
   the write onto a victim-writable file. The marker is now opened with
   `O_NOFOLLOW` and mode `0600`, and a planted symlink is refused rather than
-  followed. Resolves [#280](https://github.com/colbymchenry/codegraph/issues/280).
+  followed. Resolves [#280](https://github.com/andersonlimahw/codegraph/issues/280).
 
 ## [0.9.1] - 2026-05-21
 
@@ -303,16 +350,16 @@ and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Standalone installers** (`curl … | sh`, `irm … | iex`): the bundled launcher
   failed with `exec: …/node: not found` because it didn't resolve the symlink the
   installer puts on your PATH. Installing on a machine with **no Node** now works.
-- **npm**: `@colbymchenry/codegraph-linux-x64` is now published — the 0.9.0
+- **npm**: `@andersonlimahw/lemon-codegraph-linux-x64` is now published — the 0.9.0
   release silently shipped 6 of 7 packages, so `npm i -g` on linux-x64 couldn't
   find its bundle. The release pipeline now verifies every package reached the
   registry (and is idempotent), so a release can't pass green-but-broken again.
 
-[0.9.5]: https://github.com/colbymchenry/codegraph/releases/tag/v0.9.5
-[0.9.4]: https://github.com/colbymchenry/codegraph/releases/tag/v0.9.4
-[0.9.3]: https://github.com/colbymchenry/codegraph/releases/tag/v0.9.3
-[0.9.2]: https://github.com/colbymchenry/codegraph/releases/tag/v0.9.2
-[0.9.1]: https://github.com/colbymchenry/codegraph/releases/tag/v0.9.1
+[0.9.5]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.5
+[0.9.4]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.4
+[0.9.3]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.3
+[0.9.2]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.2
+[0.9.1]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.1
 
 ## [0.9.0] - 2026-05-21
 
@@ -324,7 +371,7 @@ CodeGraph used to need `better-sqlite3`, a native module compiled against your e
 Node version. When that build failed (common on Windows and locked-down machines) it
 silently dropped to a slow WASM SQLite build with **no WAL** — the root cause of the
 intermittent `database is locked` errors on concurrent MCP tool calls
-([#238](https://github.com/colbymchenry/codegraph/issues/238)). That entire class of
+([#238](https://github.com/andersonlimahw/codegraph/issues/238)). That entire class of
 problem is **gone**: CodeGraph now ships a self-contained Node runtime and uses Node's
 built-in `node:sqlite` (real SQLite, full WAL + FTS5).
 
@@ -335,11 +382,11 @@ built-in `node:sqlite` (real SQLite, full WAL + FTS5).
 
 ```bash
 # macOS / Linux — no Node required
-curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh
 # Windows (PowerShell) — no Node required
-irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 | iex
 # or, if you have Node (any version):
-npm i -g @colbymchenry/codegraph
+npm i -g @andersonlimahw/lemon-codegraph
 ```
 
 ### Added
@@ -352,7 +399,7 @@ npm i -g @colbymchenry/codegraph
   local variables, `require(...)` imports, and the call edges between them.
   Querying a Lua project (Neovim plugins, Kong, OpenResty, game code) now
   surfaces its modules, methods, and call graph.
-- **Luau** ([#232](https://github.com/colbymchenry/codegraph/issues/232)):
+- **Luau** ([#232](https://github.com/andersonlimahw/codegraph/issues/232)):
   CodeGraph now indexes Luau (`.luau`), Roblox's typed superset of Lua —
   everything Lua extracts, plus `type` / `export type` aliases, typed function
   signatures, generics, and Roblox instance-path `require(script.Parent.X)`
@@ -361,7 +408,7 @@ npm i -g @colbymchenry/codegraph
 ### Changed
 - **SQLite backend is now Node's built-in `node:sqlite`** (real SQLite, WAL +
   FTS5), shipped inside a bundled Node runtime. This fixes the concurrent-read
-  `database is locked` errors ([#238](https://github.com/colbymchenry/codegraph/issues/238))
+  `database is locked` errors ([#238](https://github.com/andersonlimahw/codegraph/issues/238))
   at the root and removes the native build step entirely.
 - **`npm i -g` / `npx` now install a self-contained bundle.** The main package is
   a tiny shim; the runtime ships as per-platform `optionalDependencies`, so the
@@ -389,7 +436,7 @@ npm i -g @colbymchenry/codegraph
   install. Re-run `codegraph install` once on an affected machine to
   clear the error.
 
-[0.9.0]: https://github.com/colbymchenry/codegraph/releases/tag/v0.9.0
+[0.9.0]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.9.0
 
 ## [0.8.0] - 2026-05-20
 
@@ -404,7 +451,7 @@ npm i -g @colbymchenry/codegraph
   (`@SubscribeMessage`, prefixed with the gateway namespace). Detected
   automatically from any `@nestjs/*` dependency in `package.json`. Querying a
   controller method or resolver now surfaces the route that binds it.
-  Resolves [#220](https://github.com/colbymchenry/codegraph/issues/220).
+  Resolves [#220](https://github.com/andersonlimahw/codegraph/issues/220).
 - **MCP / explore**: `codegraph_explore` source sections now carry line
   numbers (cat -n style `<num>\t<code>`, matching the Read tool). This lets
   the agent cite `file:line` straight from the explore payload instead of
@@ -452,13 +499,13 @@ npm i -g @colbymchenry/codegraph
   prebuilt binary. Node 22 LTS and Node 24 get the native backend out of the
   box; on other Node versions CodeGraph still runs via the WASM fallback
   (slower, but functional). Node 25+ remains blocked (V8 WASM JIT crash, see
-  [#81](https://github.com/colbymchenry/codegraph/issues/81)).
+  [#81](https://github.com/andersonlimahw/codegraph/issues/81)).
 - **MCP / explore**: `codegraph_explore` output is now adaptive to project
   size. The tool used to apply a fixed 35KB cap regardless of how large the
   codebase was, which on small projects (~100 files) produced bigger
   responses than the agent's native grep+Read flow would have — exactly the
   scenario reported in
-  [#185](https://github.com/colbymchenry/codegraph/issues/185). The budget
+  [#185](https://github.com/andersonlimahw/codegraph/issues/185). The budget
   now scales with indexed file count: small projects (<500 files) cap at
   ~18KB and skip the "Additional relevant files" / completeness / explore-
   budget reminders that earn their keep on bigger codebases; medium
@@ -504,7 +551,7 @@ npm i -g @colbymchenry/codegraph
   each run. CodeGraph now hash-compares untracked files against the index the
   same way it does tracked files: a file counts as "added" only if it's missing
   from the index, "modified" if its contents changed, and is skipped otherwise.
-  Closes [#206](https://github.com/colbymchenry/codegraph/issues/206). Thanks to
+  Closes [#206](https://github.com/andersonlimahw/codegraph/issues/206). Thanks to
   [@15290391025](https://github.com/15290391025) for the report.
 - **Indexing**: `codegraph init -i` now finds source inside nested, independent
   git repositories — separate clones living inside the workspace that are **not**
@@ -515,12 +562,12 @@ npm i -g @colbymchenry/codegraph
   sub-repo individually worked. CodeGraph now detects these embedded repos and
   indexes their tracked and untracked source, honoring each repo's own
   `.gitignore`. Closes
-  [#193](https://github.com/colbymchenry/codegraph/issues/193). Thanks to
+  [#193](https://github.com/andersonlimahw/codegraph/issues/193). Thanks to
   [@timxx](https://github.com/timxx) for the report.
 - **Native SQLite backend on Node 24**: indexing on Node 24 always dropped to
   the 5-10x-slower WASM backend, printing a `better-sqlite3 unavailable`
   warning that `npm rebuild better-sqlite3` / `xcode-select --install` could
-  not clear ([#203](https://github.com/colbymchenry/codegraph/issues/203)).
+  not clear ([#203](https://github.com/andersonlimahw/codegraph/issues/203)).
   The bundled `better-sqlite3` was pinned to a v11 release that ships no
   prebuilt binary for Node 24's ABI (`node-v137`), so every Node 24 install
   silently degraded — and because CodeGraph is usually installed globally, the
@@ -528,7 +575,7 @@ npm i -g @colbymchenry/codegraph
   CodeGraph's copy. CodeGraph now requires `better-sqlite3` `^12.4.1`, whose
   prebuilds include Node 24, so a fresh install on Node 22 or Node 24 gets the
   native backend with no compiler. On an already-broken install, reinstall
-  CodeGraph (e.g. `npm install -g @colbymchenry/codegraph`) to pull the new
+  CodeGraph (e.g. `npm install -g @andersonlimahw/lemon-codegraph`) to pull the new
   binding; `codegraph status` should then report `Backend: native`. Thanks to
   [@Finndersen](https://github.com/Finndersen) for the report.
 - **MCP**: tools no longer fail with "CodeGraph not initialized" when the index
@@ -545,7 +592,7 @@ npm i -g @colbymchenry/codegraph
   now actionable: it names the directory it searched and tells you to pass
   `projectPath` or add `--path /abs/project` to the server's MCP config args,
   instead of pointing you at a re-init you don't need. Closes
-  [#196](https://github.com/colbymchenry/codegraph/issues/196). Thanks to
+  [#196](https://github.com/andersonlimahw/codegraph/issues/196). Thanks to
   [@zhangyu1197](https://github.com/zhangyu1197) for the report and the
   `projectPath` workaround.
 - **MCP**: the server no longer hangs on startup under WSL2 when the project
@@ -554,11 +601,11 @@ npm i -g @colbymchenry/codegraph
   boundary — which blew past the host's initialization timeout (opencode's
   30s), so the codegraph tools silently never appeared, even on small
   projects. This is the file-watcher half of the
-  [#172](https://github.com/colbymchenry/codegraph/issues/172) startup fix:
+  [#172](https://github.com/andersonlimahw/codegraph/issues/172) startup fix:
   that one moved the database/WASM open off the handshake, but the watcher
   setup was still on the critical path. CodeGraph now auto-skips the watcher
   on those mounts, with manual and git-hook sync fallbacks (see Added).
-  Closes [#199](https://github.com/colbymchenry/codegraph/issues/199).
+  Closes [#199](https://github.com/andersonlimahw/codegraph/issues/199).
   Thanks to [@mengfanbo123](https://github.com/mengfanbo123) for the precise
   root-cause analysis and workaround.
 - **Installer (Claude Code)**: project-local installs (`Just this project`)
@@ -570,7 +617,7 @@ npm i -g @colbymchenry/codegraph
   project migrates the stale `.claude.json` entry into `.mcp.json`
   automatically; uninstall cleans up both. Global (`All projects`) installs
   were unaffected — they correctly target `~/.claude.json`. Closes
-  [#207](https://github.com/colbymchenry/codegraph/issues/207). Thanks to
+  [#207](https://github.com/andersonlimahw/codegraph/issues/207). Thanks to
   [@Jhsmit](https://github.com/Jhsmit) for the report and the workaround.
 - **MCP**: source-omission markers in `codegraph_explore` and
   `codegraph_context` output are now language-neutral (`... (gap) ...`,
@@ -589,7 +636,7 @@ npm i -g @colbymchenry/codegraph
   unresponsive and no tools visible. The handshake now returns immediately
   and defers project open to the background; tool calls wait on the
   in-flight init rather than racing it with a second open. Closes
-  [#172](https://github.com/colbymchenry/codegraph/issues/172). Thanks to
+  [#172](https://github.com/andersonlimahw/codegraph/issues/172). Thanks to
   [@sashanclrp](https://github.com/sashanclrp) for the original report and
   detailed reproduction, and [@sgrimm](https://github.com/sgrimm) for the
   decisive wire capture that isolated the actual root cause.
@@ -605,7 +652,7 @@ npm i -g @colbymchenry/codegraph
   `CODEGRAPH_UNICODE=1` to opt back into the Unicode glyphs (e.g. on
   pwsh 7 with UTF-8 codepage), or `CODEGRAPH_ASCII=1` on any platform to
   force ASCII (useful for log collectors / non-TTY pipelines). Closes
-  [#168](https://github.com/colbymchenry/codegraph/issues/168). Thanks to
+  [#168](https://github.com/andersonlimahw/codegraph/issues/168). Thanks to
   [@starkleek](https://github.com/starkleek) for the report and to
   [@Bortlesboat](https://github.com/Bortlesboat) for the initial PR.
 - **MCP / search**: module-qualified symbol lookups now resolve. The
@@ -614,7 +661,7 @@ npm i -g @colbymchenry/codegraph
   (TS / JS / Python), and `module/symbol` (path-style) — multi-level
   forms (`crate::configurator::stage_apply::run`) and Rust path
   prefixes (`crate`, `super`, `self`) are handled. Closes
-  [#173](https://github.com/colbymchenry/codegraph/issues/173). Thanks
+  [#173](https://github.com/andersonlimahw/codegraph/issues/173). Thanks
   to [@joselhurtado](https://github.com/joselhurtado) for the detailed
   reproduction. Three underlying fixes:
     - The FTS5 query builder now treats `::` as a token separator
@@ -631,8 +678,8 @@ npm i -g @colbymchenry/codegraph
       returns `null` instead of resolving to an unrelated `rollback`
       in the same file.
 
-[0.8.0]: https://github.com/colbymchenry/codegraph/releases/tag/v0.8.0
-[0.7.10]: https://github.com/colbymchenry/codegraph/releases/tag/v0.7.10
+[0.8.0]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.8.0
+[0.7.10]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.7.10
 
 ## [0.7.8] - 2026-05-17
 
@@ -655,12 +702,12 @@ npm i -g @colbymchenry/codegraph
   re-install / uninstall round-trips — surgical edits via `jsonc-parser`
   rather than full-file rewrites.
 
-[0.7.8]: https://github.com/colbymchenry/codegraph/releases/tag/v0.7.8
+[0.7.8]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.7.8
 
 ## [0.7.7] - 2026-05-17
 
 ### Added
-- **Multi-agent installer** (closes [#137](https://github.com/colbymchenry/codegraph/issues/137)).
+- **Multi-agent installer** (closes [#137](https://github.com/andersonlimahw/codegraph/issues/137)).
   `codegraph install` now opens with a multi-select prompt for **Claude Code**,
   **Cursor**, **Codex CLI**, and **opencode** — detected agents are pre-checked.
   Each writes its native MCP config + instructions file (e.g. `~/.cursor/mcp.json`
@@ -710,7 +757,7 @@ Based on substantive draft by [@andreinknv](https://github.com/andreinknv)
 ([fork commit `c5165e4`](https://github.com/andreinknv/codegraph/commit/c5165e4)).
 Thank you.
 
-[0.7.7]: https://github.com/colbymchenry/codegraph/releases/tag/v0.7.7
+[0.7.7]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.7.7
 
 ## [0.7.6] - 2026-05-13
 
@@ -722,7 +769,7 @@ Thank you.
 
   Already on 0.7.5? Either upgrade to 0.7.6, or unblock yourself in place:
   ```bash
-  chmod +x "$(npm root -g)/@colbymchenry/codegraph/dist/bin/codegraph.js"
+  chmod +x "$(npm root -g)/@andersonlimahw/lemon-codegraph/dist/bin/codegraph.js"
   ```
 
-[0.7.6]: https://github.com/colbymchenry/codegraph/releases/tag/v0.7.6
+[0.7.6]: https://github.com/andersonlimahw/codegraph/releases/tag/v0.7.6

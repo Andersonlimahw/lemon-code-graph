@@ -13,14 +13,14 @@ The interactive installer auto-detects and configures each supported agent — w
 - **opencode**
 - **Hermes Agent**
 
-Run `npx @colbymchenry/codegraph` and pick your agent(s); see [Installation](/codegraph/getting-started/installation/) for the non-interactive flags.
+Run `npx @andersonlimahw/lemon-codegraph` and pick your agent(s); see [Installation](/codegraph/getting-started/installation/) for the non-interactive flags.
 
 ## Manual setup
 
 If you'd rather wire it up yourself, install globally:
 
 ```bash
-npm install -g @colbymchenry/codegraph
+npm install -g @andersonlimahw/lemon-codegraph
 ```
 
 Add the MCP server to `~/.claude.json`:

@@ -831,6 +831,25 @@ export class ToolHandler {
         if (typeof check === 'object' && check !== undefined) return check;
       }
 
+      // Enforce input length limits to prevent DoS — reject inputs that
+      // exceed the cap so oversized payloads never reach the FTS5 layer.
+      // 10 000 characters is far beyond any realistic legitimate query.
+      if (typeof args.query === 'string' && args.query.length > MAX_INPUT_LENGTH) {
+        return this.errorResult(
+          `query exceeds maximum length of ${MAX_INPUT_LENGTH} characters (got ${args.query.length})`
+        );
+      }
+      if (typeof args.task === 'string' && args.task.length > MAX_INPUT_LENGTH) {
+        return this.errorResult(
+          `task exceeds maximum length of ${MAX_INPUT_LENGTH} characters (got ${args.task.length})`
+        );
+      }
+      if (typeof args.symbol === 'string' && args.symbol.length > MAX_INPUT_LENGTH) {
+        return this.errorResult(
+          `symbol exceeds maximum length of ${MAX_INPUT_LENGTH} characters (got ${args.symbol.length})`
+        );
+      }
+
       // Read tools resolve through a single result variable so the worktree
       // mismatch notice can be prefixed in one place (issue #155). status is
       // returned directly — it embeds its own verbose warning.

@@ -130,7 +130,9 @@ describe('getGlyphs', () => {
   });
 
   it('returns Unicode glyphs on macOS', () => {
-    withEnv({ CODEGRAPH_ASCII: undefined, CODEGRAPH_UNICODE: undefined }, () => {
+    // TERM=linux (kernel console) returns ASCII even on macOS — clear it so the
+    // test behaves consistently regardless of the host terminal environment.
+    withEnv({ CODEGRAPH_ASCII: undefined, CODEGRAPH_UNICODE: undefined, TERM: undefined }, () => {
       setPlatform('darwin');
       const g = getGlyphs();
       expect(g).toBe(UNICODE_GLYPHS);

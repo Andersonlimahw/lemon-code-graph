@@ -26,7 +26,7 @@ export default defineConfig({
 				{
 					icon: 'github',
 					label: 'GitHub',
-					href: 'https://github.com/andersonlimahw/codegraph',
+					href: 'https://github.com/andersonlimahw/lemon-code-graph',
 				},
 			],
 			customCss: [

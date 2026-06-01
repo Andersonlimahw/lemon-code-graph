@@ -5,16 +5,18 @@ import type { LanguageExtractor } from '../tree-sitter-types';
 export const javaExtractor: LanguageExtractor = {
   functionTypes: [],
   classTypes: ['class_declaration'],
-  methodTypes: ['method_declaration', 'constructor_declaration'],
-  interfaceTypes: ['interface_declaration'],
+  // abstract_method_declaration covers interface methods without a body
+  methodTypes: ['method_declaration', 'constructor_declaration', 'abstract_method_declaration'],
+  // annotation_type_declaration: `@interface Foo {}` — annotation definitions
+  interfaceTypes: ['interface_declaration', 'annotation_type_declaration'],
   structTypes: [],
   enumTypes: ['enum_declaration'],
   enumMemberTypes: ['enum_constant'],
   typeAliasTypes: [],
   importTypes: ['import_declaration'],
-  callTypes: ['method_invocation'],
+  callTypes: ['method_invocation', 'object_creation_expression'],
   variableTypes: ['local_variable_declaration'],
-  fieldTypes: ['field_declaration'],
+  fieldTypes: ['field_declaration', 'constant_declaration'],
   nameField: 'name',
   bodyField: 'body',
   paramsField: 'parameters',
@@ -42,6 +44,16 @@ export const javaExtractor: LanguageExtractor = {
     for (let i = 0; i < node.childCount; i++) {
       const child = node.child(i);
       if (child?.type === 'modifiers' && child.text.includes('static')) {
+        return true;
+      }
+    }
+    return false;
+  },
+  isAsync: (node) => {
+    // Java doesn't have async/await but @Async annotation marks async methods
+    for (let i = 0; i < node.childCount; i++) {
+      const child = node.child(i);
+      if (child?.type === 'modifiers' && child.text.includes('@Async')) {
         return true;
       }
     }

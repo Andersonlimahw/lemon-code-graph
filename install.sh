@@ -50,16 +50,41 @@ target="${os}-${arch}"
 # 403 once exhausted — routine on shared/cloud hosts and CI (issue #325). The
 # redirect (github.com/<repo>/releases/latest -> .../releases/tag/vX.Y.Z) has no
 # such limit. Fall back to the API if the redirect can't be read.
+#
+# Note: omit -f so a 404 (no releases yet) doesn't abort the script.
 version="${CODEGRAPH_VERSION:-}"
 if [ -z "$version" ]; then
-  version="$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" \
-    | sed -n 's#.*/releases/tag/##p')"
+  version="$(curl -sSLI -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest" 2>/dev/null \
+    | sed -n 's#.*/releases/tag/##p')" || true
 fi
 if [ -z "$version" ]; then
-  version="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
-    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n1)"
+  version="$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null \
+    | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n1)" || true
 fi
-[ -n "$version" ] || { echo "codegraph: could not resolve latest version; set CODEGRAPH_VERSION (e.g. CODEGRAPH_VERSION=v0.9.4)." >&2; exit 1; }
+if [ -z "$version" ]; then
+  cat >&2 <<EOF
+
+codegraph: no GitHub Releases found for $REPO.
+
+The standalone installer requires a published GitHub Release (binary bundles).
+No release has been published yet for this fork.
+
+Install via Node.js instead (requires Node >= 18):
+
+  npm install -g github:$REPO
+
+Or build from source:
+
+  git clone https://github.com/$REPO
+  cd lemon-code-graph
+  npm ci && npm run build && npm link
+
+Once a release is published, pin a version with:
+  CODEGRAPH_VERSION=v0.9.4 sh <(curl -fsSL https://raw.githubusercontent.com/$REPO/main/install.sh)
+
+EOF
+  exit 1
+fi
 # Release tags are vX.Y.Z; accept a bare X.Y.Z in CODEGRAPH_VERSION too.
 case "$version" in v*) ;; *) version="v$version" ;; esac
 

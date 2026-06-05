@@ -23,9 +23,34 @@ $target = "win32-$arch"
 # 2. Resolve the version (latest release unless pinned).
 $version = $env:CODEGRAPH_VERSION
 if (-not $version) {
-  $version = (Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest").tag_name
+  try {
+    $version = (Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest").tag_name
+  } catch { $version = $null }
 }
-if (-not $version) { throw "codegraph: could not resolve latest version; set CODEGRAPH_VERSION." }
+if (-not $version) {
+  Write-Host @"
+
+codegraph: no GitHub Releases found for $repo.
+
+The standalone installer requires a published GitHub Release (binary bundles).
+No release has been published yet for this fork.
+
+Install via Node.js instead (requires Node >= 18):
+
+  npm install -g "github:$repo"
+
+Or build from source:
+
+  git clone https://github.com/$repo
+  cd lemon-code-graph
+  npm ci; npm run build; npm link
+
+Once a release is published, pin a version with:
+  `$env:CODEGRAPH_VERSION='v0.9.4'; irm https://raw.githubusercontent.com/$repo/main/install.ps1 | iex
+
+"@ -ForegroundColor Yellow
+  exit 1
+}
 
 # 3. Download + extract the bundle into a stable 'current' dir (overwritten on upgrade).
 $url = "https://github.com/$repo/releases/download/$version/codegraph-$target.zip"

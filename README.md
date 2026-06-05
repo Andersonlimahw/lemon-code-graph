@@ -28,7 +28,20 @@
 
 ## Get Started
 
-**No Node.js required** — one command grabs the right build for your OS:
+> **Status:** The first release for this fork is not yet published.
+> Use **Option A** below until binaries are available on GitHub Releases.
+
+### Option A — Install from GitHub (works now, requires Node ≥ 18)
+
+```bash
+npm install -g github:andersonlimahw/lemon-code-graph
+```
+
+npm will clone the repo, build it, and install the `codegraph` CLI globally. One command, no extra steps.
+
+### Option B — Bundled installer (available after first release)
+
+Once a release is published (see [PLAN_NPM.md](./PLAN_NPM.md)), you can install the self-contained binary (no Node required):
 
 ```bash
 # macOS / Linux
@@ -38,14 +51,14 @@ curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/mai
 irm https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.ps1 | iex
 ```
 
-Already have Node? Use npm instead (works on any version):
+### Option C — npm registry (available after first release)
 
 ```bash
 npx @andersonlimahw/lemon-codegraph        # zero-install, or:
 npm i -g @andersonlimahw/lemon-codegraph
 ```
 
-<sub>CodeGraph bundles its own runtime — nothing to compile, no native build, works the same everywhere. The interactive installer auto-configures your agent(s) — Claude Code, Cursor, Codex CLI, opencode, Hermes Agent.</sub>
+<sub>The bundled installer and npm thin-shim ship a vendored Node runtime — no compile step, works everywhere. The interactive installer auto-configures your agent(s) — Claude Code, Cursor, Codex CLI, opencode, Hermes Agent.</sub>
 
 ### Initialize Projects
 
@@ -175,6 +188,7 @@ CodeGraph detects framework routing files and patterns, emitting `route` and `co
 |---|---|
 | **FastAPI** | `@app.get(...)`, `@router.post(...)`, all HTTP methods |
 | **Spring** | `@GetMapping`, `@PostMapping`, `@RequestMapping` on methods |
+| **Ktor** | `routing { get("/path") {...} }`, route groups, `@Resource` annotations |
 | **Gin / chi / gorilla/mux** | `r.GET(...)`, `router.HandleFunc(...)` |
 | **ASP.NET** | `[HttpGet("/x")]` attributes on action methods |
 
@@ -182,10 +196,11 @@ CodeGraph detects framework routing files and patterns, emitting `route` and `co
 
 ## Quick Start
 
-### 1. Run the Installer
+### 1. Install & Run
 
 ```bash
-npx @andersonlimahw/lemon-codegraph
+npm install -g github:andersonlimahw/lemon-code-graph
+codegraph
 ```
 
 The installer will:
@@ -515,7 +530,7 @@ the MCP server and writing its instructions file:
 
 **MCP hits `database is locked`** — current builds shouldn't: CodeGraph bundles its own Node runtime and uses Node's built-in `node:sqlite` in WAL mode, where concurrent reads never block on a writer. If you still see it:
 
-- **You're on an old (pre-0.9) install.** Reinstall to get the bundled runtime — `curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.sh | sh` (macOS/Linux), `irm https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.ps1 | iex` (Windows), or `npm i -g @andersonlimahw/lemon-codegraph@latest`.
+- **You're on an old (pre-0.9) install.** Reinstall to get the bundled runtime — `npm install -g github:andersonlimahw/lemon-code-graph` (works now), or once a release is published: `curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.sh | sh` (macOS/Linux) / `irm https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.ps1 | iex` (Windows) / `npm i -g @andersonlimahw/lemon-codegraph@latest`.
 - **`codegraph status` shows `Journal:` other than `wal`** — WAL couldn't be enabled on this filesystem (common on network shares and WSL2 `/mnt`), so reads can block on writes. Move the project (with its `.codegraph/` folder) onto a local disk.
 
 **MCP server not connecting** — Ensure the project is initialized/indexed, verify the path in your MCP config, and check that `codegraph serve --mcp` works from the command line.

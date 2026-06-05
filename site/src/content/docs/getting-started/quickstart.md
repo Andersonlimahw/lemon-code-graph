@@ -9,10 +9,10 @@ Get up and running with CodeGraph in seconds.
 
 ```bash
 # macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.sh | sh
 
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.ps1 | iex
 ```
 
 ## Already have Node? Use npm instead (works on any version)

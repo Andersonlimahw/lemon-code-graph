@@ -615,6 +615,86 @@ class OwnerController {
   });
 });
 
+import { ktorResolver } from '../src/resolution/frameworks/ktor';
+
+describe('ktorResolver.extract', () => {
+  it('extracts a GET route and its block handler', () => {
+    const src = `
+routing {
+    get("/hello") {
+        call.respondText("Hello, World!")
+    }
+}
+`;
+    const { nodes } = ktorResolver.extract!('Application.kt', src);
+    expect(nodes[0].name).toBe('GET /hello');
+    expect(nodes[0].kind).toBe('route');
+  });
+
+  it('extracts multiple HTTP verb routes', () => {
+    const src = `
+routing {
+    get("/users") { call.respond(userService.list()) }
+    post("/users") { val body = call.receive<User>(); call.respond(userService.create(body)) }
+    put("/users/{id}") { }
+    delete("/users/{id}") { }
+}
+`;
+    const { nodes } = ktorResolver.extract!('routes/Users.kt', src);
+    expect(nodes.map((n) => n.name)).toEqual([
+      'GET /users',
+      'POST /users',
+      'PUT /users/{id}',
+      'DELETE /users/{id}',
+    ]);
+  });
+
+  it('extracts a named function-reference handler', () => {
+    const src = `
+routing {
+    get("/profile", ::getProfile)
+}
+`;
+    const { nodes, references } = ktorResolver.extract!('Routes.kt', src);
+    expect(nodes[0].name).toBe('GET /profile');
+    expect(references[0].referenceName).toBe('getProfile');
+  });
+
+  it('extracts Application.module extension entry points', () => {
+    const src = `
+fun Application.module() {
+    routing { get("/") { call.respondText("ok") } }
+}
+fun Application.configureRouting() {
+    routing { get("/health") { } }
+}
+`;
+    const { nodes } = ktorResolver.extract!('Application.kt', src);
+    const modules = nodes.filter((n) => n.kind === 'function');
+    expect(modules.map((n) => n.name)).toContain('Application.module');
+    expect(modules.map((n) => n.name)).toContain('Application.configureRouting');
+  });
+
+  it('extracts @Resource type-safe route declarations', () => {
+    const src = `
+@Resource("/articles")
+class Articles {
+    @Resource("new")
+    class New(val parent: Articles = Articles())
+}
+`;
+    const { nodes } = ktorResolver.extract!('Resources.kt', src);
+    const routes = nodes.filter((n) => n.kind === 'route');
+    expect(routes.some((n) => n.name === 'RESOURCE /articles')).toBe(true);
+    expect(routes.some((n) => n.name === 'RESOURCE new')).toBe(true);
+  });
+
+  it('skips non-Kotlin files', () => {
+    const { nodes } = ktorResolver.extract!('Routes.java', 'get("/foo") {}');
+    expect(nodes).toHaveLength(0);
+  });
+});
+
 import { playResolver } from '../src/resolution/frameworks/play';
 import { isSourceFile, isPlayRoutesFile } from '../src/extraction/grammars';
 

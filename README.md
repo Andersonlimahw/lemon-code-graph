@@ -32,10 +32,10 @@
 
 ```bash
 # macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.sh | sh
 
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.ps1 | iex
 ```
 
 Already have Node? Use npm instead (works on any version):
@@ -103,7 +103,7 @@ The gains scale with codebase size: on large repos the agent answers from the in
 
 **Queries:**
 | Codebase | Query |
-|----------|-------|
+|----------|---------|
 | VS Code | "How does the extension host communicate with the main process?" |
 | Excalidraw | "How does Excalidraw render and update canvas elements?" |
 | Django | "How does Django's ORM build and execute a query from a QuerySet?" |
@@ -515,7 +515,7 @@ the MCP server and writing its instructions file:
 
 **MCP hits `database is locked`** — current builds shouldn't: CodeGraph bundles its own Node runtime and uses Node's built-in `node:sqlite` in WAL mode, where concurrent reads never block on a writer. If you still see it:
 
-- **You're on an old (pre-0.9) install.** Reinstall to get the bundled runtime — `curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh` (macOS/Linux), `irm https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.ps1 | iex` (Windows), or `npm i -g @andersonlimahw/lemon-codegraph@latest`.
+- **You're on an old (pre-0.9) install.** Reinstall to get the bundled runtime — `curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.sh | sh` (macOS/Linux), `irm https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.ps1 | iex` (Windows), or `npm i -g @andersonlimahw/lemon-codegraph@latest`.
 - **`codegraph status` shows `Journal:` other than `wal`** — WAL couldn't be enabled on this filesystem (common on network shares and WSL2 `/mnt`), so reads can block on writes. Move the project (with its `.codegraph/` folder) onto a local disk.
 
 **MCP server not connecting** — Ensure the project is initialized/indexed, verify the path in your MCP config, and check that `codegraph serve --mcp` works from the command line.
@@ -526,9 +526,9 @@ the MCP server and writing its instructions file:
 
 <a href="https://www.star-history.com/?repos=andersonlimahw%2Fcodegraph&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=andersonlimahw/codegraph&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=andersonlimahw/codegraph&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=andersonlimahw/codegraph&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=andersonlimahw/lemon-code-graph&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=andersonlimahw/lemon-code-graph&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=andersonlimahw/lemon-code-graph&type=date&legend=top-left" />
  </picture>
 </a>
 
@@ -569,6 +569,6 @@ MIT
 
 **Made for AI coding agents — Claude Code, Cursor, Codex CLI, opencode, and Hermes Agent**
 
-[Report Bug](https://github.com/andersonlimahw/codegraph/issues) · [Request Feature](https://github.com/andersonlimahw/codegraph/issues)
+[Report Bug](https://github.com/andersonlimahw/lemon-code-graph/issues) · [Request Feature](https://github.com/andersonlimahw/lemon-code-graph/issues)
 
 </div>

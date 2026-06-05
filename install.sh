@@ -6,7 +6,7 @@
 # GitHub Releases. No Node.js, no build tools, no npm required — ideal for a
 # fresh Linux VPS over SSH.
 #
-#   curl -fsSL https://raw.githubusercontent.com/andersonlimahw/codegraph/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/andersonlimahw/lemon-code-graph/main/install.sh | sh
 #
 # Upgrade:   re-run the same command.
 # Uninstall: curl -fsSL .../install.sh | sh -s -- --uninstall
@@ -17,7 +17,7 @@
 #   CODEGRAPH_BIN_DIR      symlink location  (default: ~/.local/bin)
 set -eu
 
-REPO="andersonlimahw/codegraph"
+REPO="andersonlimahw/lemon-code-graph"
 INSTALL_DIR="${CODEGRAPH_INSTALL_DIR:-$HOME/.codegraph}"
 BIN_DIR="${CODEGRAPH_BIN_DIR:-$HOME/.local/bin}"
 

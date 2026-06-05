@@ -13,7 +13,7 @@
  *   iOS / macOS (SwiftUI · UIKit · Combine · SwiftData)
  *
  * Other:
- *   Go · Java/Spring · C# ASP.NET · FastAPI (Python) · Cargo workspaces
+ *   Go · Java/Spring · Kotlin/Ktor · C# ASP.NET · FastAPI (Python) · Cargo workspaces
  *
  * Removed (not part of target stack):
  *   Django, Flask, Laravel, Drupal (PHP), Axum/Actix/Rocket (Rust), Vapor (Swift)
@@ -47,6 +47,7 @@ import { fastapiResolver } from './python';
 
 // JVM
 import { springResolver } from './java';
+import { ktorResolver } from './ktor';
 import { playResolver } from './play';
 
 // Go
@@ -84,6 +85,7 @@ const FRAMEWORK_RESOLVERS: FrameworkResolver[] = [
 
   // JVM
   springResolver,
+  ktorResolver,
   playResolver,
 
   // Go
@@ -163,6 +165,7 @@ export { iosResolver } from './ios';
 export { bunResolver } from './bun';
 export { fastapiResolver } from './python';
 export { springResolver } from './java';
+export { ktorResolver } from './ktor';
 export { playResolver } from './play';
 export { goResolver } from './go';
 export { aspnetResolver } from './csharp';
